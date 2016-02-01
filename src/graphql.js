@@ -46,27 +46,21 @@ export function graphql(
   rootValue?: mixed,
   variableValues?: ?{[key: string]: mixed},
   operationName?: ?string
-): Promise<GraphQLResult> {
-  return new Promise(resolve => {
-    const source = new Source(requestString || '', 'GraphQL request');
-    const documentAST = parse(source);
-    const validationErrors = validate(schema, documentAST);
-    if (validationErrors.length > 0) {
-      resolve({ errors: validationErrors });
-    } else {
-      resolve(
-        execute(
-          schema,
-          documentAST,
-          rootValue,
-          variableValues,
-          operationName
-        )
-      );
-    }
-  }).catch(error => {
-    return { errors: [ error ] };
-  });
+): GraphQLResult {
+  const source = new Source(requestString || '', 'GraphQL request');
+  const documentAST = parse(source);
+  const validationErrors = validate(schema, documentAST);
+  if (validationErrors.length > 0) {
+    return { errors: validationErrors };
+  } else {
+    return execute(
+      schema,
+      documentAST,
+      rootValue,
+      variableValues,
+      operationName
+    );
+  }
 }
 
 /**

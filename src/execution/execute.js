@@ -109,7 +109,7 @@ export function execute(
   rootValue?: mixed,
   variableValues?: ?{[key: string]: mixed},
   operationName?: ?string
-): Promise<ExecutionResult> {
+): ExecutionResult {
   invariant(schema, 'Must provide schema');
   invariant(
     schema instanceof GraphQLSchema,
@@ -134,20 +134,7 @@ export function execute(
   // field and its descendants will be omitted, and sibling fields will still
   // be executed. An execution which encounters errors will still result in a
   // resolved Promise.
-  return new Promise(resolve => {
-    resolve(executeOperation(context, context.operation, rootValue));
-  }).catch(error => {
-    // Errors from sub-fields of a NonNull type may propagate to the top level,
-    // at which point we still log the error and null the parent field, which
-    // in this case is the entire response.
-    context.errors.push(error);
-    return null;
-  }).then(data => {
-    if (!context.errors.length) {
-      return { data };
-    }
-    return { data, errors: context.errors };
-  });
+  return executeOperation(context, context.operation, rootValue);
 }
 
 /**
